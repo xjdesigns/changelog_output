@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict'
 const fs = require('fs')
 const axios = require('axios')
@@ -9,10 +10,10 @@ const optionDefinitions = [
 	{ name: 'slack', type: String }
 ]
 const options = commandLineArgs(optionDefinitions)
-console.warn('options', options)
+const root = process.cwd()
 const { writeOutput, inputFile, link, slack } = options
-let baseLink = link || 'https://bofcmportal.atlassian.net/browse/'
-let fileName = inputFile || 'CHANGELOG_TESTINGOUTPUT.md'
+let baseLink = link || ''
+let fileName = inputFile || 'CHANGELOG.md'
 let slackPath = slack || ''
 const config = 'config.json'
 let writeOutputFile = writeOutput || false
@@ -22,32 +23,37 @@ let releaseDate = ''
 
 function checkForConfig() {
 	return new Promise((res, rej) => {
-		fs.readFile(`${__dirname}/${config}`, 'utf8', (err, config) => {
-			if (err) {
-				console.error('err', err)
-				rej(err)
-			}
-
-			try {
-				const parsed = JSON.parse(config);
-				if (parsed.writeOutput) {
-					writeOutputFile = parsed.writeOutput
+		if (fs.existsSync(`${root}/${config}`)) {
+			fs.readFile(`${root}/${config}`, 'utf8', (err, config) => {
+				if (err) {
+					console.error('err', err)
+					rej(err)
 				}
-				if (parsed.fileName) {
-					fileName = parsed.fileName
-				}
-				if (parsed.link) {
-					baseLink = parsed.link
-				}
-			} catch (err) {
-				rej(err)
-			}
 	
-			if (config) {
-				fileData()
-				res();
-			}
-		})
+				try {
+					const parsed = JSON.parse(config);
+					if (parsed.writeOutput) {
+						writeOutputFile = parsed.writeOutput
+					}
+					if (parsed.fileName) {
+						fileName = parsed.fileName
+					}
+					if (parsed.link) {
+						baseLink = parsed.link
+					}
+				} catch (err) {
+					rej(err)
+				}
+		
+				if (config) {
+					fileData()
+					res()
+				}
+			})
+		} else {
+			fileData()
+			res()
+		}
 	})
 }
 
@@ -57,7 +63,7 @@ async function fileData() {
 		return
 	}
 
-	fs.readFile(`${__dirname}/${fileName}`, 'utf8', (err, data) => {
+	fs.readFile(`${root}/${fileName}`, 'utf8', (err, data) => {
 		if (err) {
 			console.error('err', err)
 			return
@@ -172,10 +178,12 @@ function createOutputFile(data) {
 	}
 
 	if (writeOutputFile) {
-		fs.writeFile(`${__dirname}/outputFile.txt`, outputFile, err => {
+		fs.writeFile(`${root}/outputFile.txt`, outputFile, err => {
 			if (err) console.error('failed to write')
 		})
 	}
 }
 
-checkForConfig()
+console.warn('Starting file generation')
+await checkForConfig()
+console.warn('File generation done')

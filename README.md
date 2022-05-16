@@ -5,11 +5,7 @@ for a more product focused view.
 
 ## Run
 ```
-npm run generate
-
-or
-
-node index.js
+./node_modules/.bin/cogenerate
 ```
 
 ## Options
@@ -38,6 +34,9 @@ Slack integration already uses the following value as a base so you just need to
 `https://hooks.slack.com/services/`
 
 ```
+alias the bin command inside your package.json as a script
+assuming "generate: ./node_modules/.bin/cogenerate"
+
 npm run generate -- --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/ending/url
 ```
 

@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +19,8 @@
   "dependencies": {
     "axios": "^0.27.2",
     "command-line-args": "^5.2.1"
+  },
+  "bin": {
+    "cogenerate": "./cli.js"
   }
 }
