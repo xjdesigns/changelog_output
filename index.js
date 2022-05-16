@@ -116,12 +116,12 @@ function createLinks(issues) {
 
 	for (let i = 0; i < issues.length; i++) {
 		const issue = {
-			title: `• ${issues[i]}`
+			title: `N/A • ${issues[i]}`
 		}
 		
 		if (WDFRegex.test(issues[i])) {
 			const match = issues[i].match(WDFRegex)
-			issue['link'] = `<${baseLink}${match[0]}|${match[0]}>`
+			issue['title'] = `<${baseLink}${match[0]}|${match[0]}> • ${issues[i]}`
 		}
 
 		output.push(issue)
@@ -132,9 +132,9 @@ function createLinks(issues) {
 
 function createOutputFile(data) {
 	let outputFile = `${title}${releaseDate}\n${version}\n\n${data.map(d => {
-		if (d.link) {
-			return d.title + d.link + '\n\n'
-		}
+		// if (d.link) {
+		// 	return d.title + d.link + '\n\n'
+		// }
 		return d.title + '\n'
 	})}`;
 	outputFile = outputFile.replace(/,/g, '')
