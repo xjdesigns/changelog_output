@@ -185,5 +185,4 @@ function createOutputFile(data) {
 }
 
 console.warn('Starting file generation')
-await checkForConfig()
-console.warn('File generation done')
+checkForConfig()
