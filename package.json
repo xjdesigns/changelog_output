@@ -1,0 +1,24 @@
+{
+  "name": "changelog_output",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xjdesigns/changelog_output.git"
+  },
+  "author": "Jason Jacobson <jdesigns.jason@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xjdesigns/changelog_output/issues"
+  },
+  "homepage": "https://github.com/xjdesigns/changelog_output#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "command-line-args": "^5.2.1"
+  }
+}
