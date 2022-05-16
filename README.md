@@ -3,21 +3,30 @@
 A module created to convert a standard version changelog to a more readable ouput
 for a more product focused view.
 
-## Run
+This checks for changes between the new version and last version.
+
+## Usage
 ```
 ./node_modules/.bin/cogenerate
+
+or add as a script to run inside of npm package.json
+
+"script": {
+	...,
+	"generate": "./node_modules/.bin/cogenerate"
+}
 ```
 
 ## Options
-There are 4 options you can provide to the generate either as command line args or as a config.json file.
+There are 4 options you can provide to the generate either as command line args or as a co-config.json file.
 
-> NOTE: Slack webhooks are secret URLS and should not allowed in the config file. Pass as an arg for safety.
+> NOTE: Slack webhooks are secret URLS and should not be allowed in the config file. Pass as an arg for safety.
 
 Link is built off the assumption that you are using jira. How this works is it looks for the ticket number inside of
 description of your commit and if it exists it will append that value to the end of the link property.
 
 ### Config
-In the root directory where you run this command add a `config.json` file.
+In the root directory where you run this command add a `co-config.json` file.
 
 ```
 {
@@ -34,9 +43,6 @@ Slack integration already uses the following value as a base so you just need to
 `https://hooks.slack.com/services/`
 
 ```
-alias the bin command inside your package.json as a script
-assuming "generate: ./node_modules/.bin/cogenerate"
-
 npm run generate -- --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/ending/url
 ```
 
