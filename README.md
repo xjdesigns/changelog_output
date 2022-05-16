@@ -38,7 +38,7 @@ Slack integration already uses the following value as a base so you just need to
 `https://hooks.slack.com/services/`
 
 ```
-npm run generate --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/ending/url
+npm run generate -- --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/ending/url
 ```
 
 ### Link

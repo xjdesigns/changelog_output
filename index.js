@@ -9,6 +9,7 @@ const optionDefinitions = [
 	{ name: 'slack', type: String }
 ]
 const options = commandLineArgs(optionDefinitions)
+console.warn('options', options)
 const { writeOutput, inputFile, link, slack } = options
 let baseLink = link || 'https://bofcmportal.atlassian.net/browse/'
 let fileName = inputFile || 'CHANGELOG_TESTINGOUTPUT.md'
@@ -120,7 +121,7 @@ function createLinks(issues) {
 		
 		if (WDFRegex.test(issues[i])) {
 			const match = issues[i].match(WDFRegex)
-			issue['link'] = `[[${match[0]}]](${baseLink}${match[0]})`
+			issue['link'] = `<${baseLink}${match[0]}|${match[0]}>`
 		}
 
 		output.push(issue)
@@ -139,6 +140,8 @@ function createOutputFile(data) {
 	outputFile = outputFile.replace(/,/g, '')
 	outputFile = outputFile.replace(/\*\*/g, '')
 	console.warn(outputFile)
+
+	console.warn('slackPath', slackPath)
 
 	if (slackPath) {
 		axios({
@@ -159,6 +162,12 @@ function createOutputFile(data) {
 			headers: {
 				'Content-type': 'application/json'
 			}
+		})
+		.then(() => {
+			console.warn('Slack post successful')
+		})
+		.catch(err => {
+			console.error('Slack post error', err)
 		})
 	}
 
