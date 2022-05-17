@@ -99,6 +99,7 @@ function getCommitsFromVersion(data) {
 	const versionRegex = /\[(\d.\d.\d)\]/g
 	const versions = data.match(versionRegex)
 	// RegExp for \s\S needs additional slash as being stripped
+	version = versions[0]
 	const version0 = versions[0].replace('[', 'v').replace(']', '')
 	const version1 = versions[1].replace('[', 'v').replace(']', '')
 	const allCommitsRegex = RegExp(version0 + '([\\s\\S]*?)' + version1, 'gm')
