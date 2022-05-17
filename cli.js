@@ -96,34 +96,33 @@ function createReleaseDate(data) {
 }
 
 function getCommitsFromVersion(data) {
-	const versionRegex = /\d.\d.\d/g
+	const versionRegex = /\[(\d.\d.\d)\]/g
 	const versions = data.match(versionRegex)
 	// RegExp for \s\S needs additional slash as being stripped
-	version = versions[0]
-	const allCommitsRegex = RegExp(versions[0] + '([\\s\\S]*?)' + versions[1], 'gm')
+	const version0 = versions[0].replace('[', 'v').replace(']', '')
+	const version1 = versions[1].replace('[', 'v').replace(']', '')
+	const allCommitsRegex = RegExp(version0 + '([\\s\\S]*?)' + version1, 'gm')
 	const allCommits = data.match(allCommitsRegex)
 	const commitRegex = /\*\*([\s\S]*?)\n/g
 	let issueCount = 0
 	const issues = []
 
-	for (let i = 0; i < allCommits.length; i++) {
-		const match = allCommits[i].match(commitRegex)
+	const match = allCommits[0].match(commitRegex)
 
-		if (match && match.length > 0) {
-			for (let m = 0; m < match.length; m++) {
-				const issue = match[m]
-				currentCharCount = currentCharCount + issue.length
+	if (match && match.length > 0) {
+		for (let m = 0; m < match.length; m++) {
+			const issue = match[m]
+			currentCharCount = currentCharCount + issue.length
 
-				if (currentCharCount > slackCharSafeLimit) {
-					++issueCount
-					currentCharCount = 0
-				}
-				if (issues[issueCount]) {
-					issues[issueCount].push(issue)
-				} else {
-					issues.push([])
-					issues[issueCount].push(issue)
-				}
+			if (currentCharCount > slackCharSafeLimit) {
+				++issueCount
+				currentCharCount = 0
+			}
+			if (issues[issueCount]) {
+				issues[issueCount].push(issue)
+			} else {
+				issues.push([])
+				issues[issueCount].push(issue)
 			}
 		}
 	}
@@ -189,6 +188,8 @@ function createOutputFile(data) {
 	const slackData = {
 		blocks
 	};
+
+	console.warn('Output data', blocks)
 
 	if (slackPath) {
 		axios({
