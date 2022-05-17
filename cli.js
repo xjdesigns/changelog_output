@@ -20,6 +20,8 @@ let writeOutputFile = writeOutput || false
 let version = ''
 let title = ''
 let releaseDate = ''
+const slackCharSafeLimit = 2000
+let currentCharCount = 0
 
 function checkForConfig() {
 	return new Promise((res, rej) => {
@@ -101,6 +103,7 @@ function getCommitsFromVersion(data) {
 	const allCommitsRegex = RegExp(versions[0] + '([\\s\\S]*?)' + versions[1], 'gm')
 	const allCommits = data.match(allCommitsRegex)
 	const commitRegex = /\*\*([\s\S]*?)\n/g
+	let issueCount = 0
 	const issues = []
 
 	for (let i = 0; i < allCommits.length; i++) {
@@ -108,7 +111,19 @@ function getCommitsFromVersion(data) {
 
 		if (match && match.length > 0) {
 			for (let m = 0; m < match.length; m++) {
-				issues.push(match[m])
+				const issue = match[m]
+				currentCharCount = currentCharCount + issue.length
+
+				if (currentCharCount > slackCharSafeLimit) {
+					++issueCount
+					currentCharCount = 0
+				}
+				if (issues[issueCount]) {
+					issues[issueCount].push(issue)
+				} else {
+					issues.push([])
+					issues[issueCount].push(issue)
+				}
 			}
 		}
 	}
@@ -117,54 +132,69 @@ function getCommitsFromVersion(data) {
 }
 
 function createLinks(issues) {
-	const output = []
+	const output = [...Array(issues.length)].map(() => [])
 	const WDFRegex = /([a-zA-Z]+(-[0-9]+)+)/g
 
-	for (let i = 0; i < issues.length; i++) {
-		const issue = {
-			title: `N/A • ${issues[i]}`
+	for (let o = 0; o < issues.length; o++) {
+		for (let i = 0; i < issues[o].length; i++) {
+			const currentIssue = issues[o][i]
+			const issue = {
+				title: `N/A • ${currentIssue}`
+			}
+			
+			if (WDFRegex.test(currentIssue)) {
+				const match = currentIssue.match(WDFRegex)
+				issue['title'] = `<${baseLink}${match[0]}|${match[0]}> • ${currentIssue}`
+			}
+	
+			output[o].push(issue)
 		}
-		
-		if (WDFRegex.test(issues[i])) {
-			const match = issues[i].match(WDFRegex)
-			issue['title'] = `<${baseLink}${match[0]}|${match[0]}> • ${issues[i]}`
-		}
-
-		output.push(issue)
 	}
 
 	return output
 }
 
 function createOutputFile(data) {
-	let outputFile = `${title}${releaseDate}\n${version}\n\n${data.map(d => {
-		// if (d.link) {
-		// 	return d.title + d.link + '\n\n'
-		// }
-		return d.title + '\n'
-	})}`;
-	outputFile = outputFile.replace(/,/g, '')
-	outputFile = outputFile.replace(/\*\*/g, '')
-	console.warn(outputFile)
-
-	console.warn('slackPath', slackPath)
+	const blocks = [
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `${title}${releaseDate}`
+			}
+		},
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `*${version}*`
+			}
+		}
+	];
+	for (let d = 0; d < data.length; d++) {
+		let outputText = `${data[d].map(d => {
+			return d.title + '\n'
+		})}`
+		outputText = outputText.replace(/,/g, '')
+		outputText = outputText.replace(/\*\*/g, '')
+		const block = {
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: outputText
+			}
+		}
+		blocks.push(block)
+	}
+	const slackData = {
+		blocks
+	};
 
 	if (slackPath) {
 		axios({
 			method: 'post',
 			url: `https://hooks.slack.com/services/${slackPath}`,
-			data: {
-				text: 'Changelog',
-				blocks: [
-					{
-						type: 'section',
-						text: {
-							type: 'mrkdwn',
-							text: outputFile
-						}
-					}
-				]
-			},
+			data: slackData,
 			headers: {
 				'Content-type': 'application/json'
 			}
