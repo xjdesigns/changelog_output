@@ -137,10 +137,12 @@ function createLinks(issues) {
 
 	for (let o = 0; o < issues.length; o++) {
 		for (let i = 0; i < issues[o].length; i++) {
-			const currentIssue = issues[o][i]
+			// const currentIssue = issues[o][i]
+			const currentIssue = changelogLinkToSlackLink(issues[o][i])
 			const issue = {
 				title: `N/A • ${currentIssue}`
 			}
+
 			
 			if (WDFRegex.test(currentIssue)) {
 				const match = currentIssue.match(WDFRegex)
@@ -152,6 +154,22 @@ function createLinks(issues) {
 	}
 
 	return output
+}
+
+function changelogLinkToSlackLink(issue) {
+	let toChange = issue
+	const msgRegex = /^([^()]+)\[/g
+	const hashRegex = /\[([^()]+)\]/g
+	const urlRegex = /\(([^()]+)\)/g
+	toChange = toChange.replace('(', '').replace(')', '')
+	const msg = toChange.match(msgRegex)[0].replace('[', '')
+	const hash = toChange.match(hashRegex)[0].replace('[', '').replace(']', '')
+	const url = toChange.match(urlRegex)[0].replace('(', '').replace(')', '')
+	console.warn('toChange', toChange)
+	console.warn('msg', msg)
+	console.warn('hash', hash)
+	console.warn('url', url)
+	return `${msg} <${url}|${hash}>`
 }
 
 function createOutputFile(data) {

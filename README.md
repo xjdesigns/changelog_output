@@ -68,3 +68,14 @@ feat(thing): POS-43 The coolest feature ever
 Output link value will be
 https://something.atlassian.net/browse/POS-43
 ```
+
+## NOTES
+If this is the first time you are running and just ran the first release command for standard version
+you will need to add one small change due to the regex pattern.
+
+This is because the first release does not have anything to compare against and breaks the simple regex being used.
+
+So a simple update is the following:
+* Run the first release command for standard version.
+* Bottom of the file will output just the starting version `"## 0.0.0"`
+* Update to be something like `"## 0.0.0 [0.0.0](some_link) (2022-05-16)"`
