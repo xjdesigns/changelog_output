@@ -204,6 +204,16 @@ function createOutputFile(data) {
 		}
 		blocks.push(block)
 	}
+
+	const funEnd = {
+		type: 'section',
+		text: {
+			type: 'mrkdwn',
+			text: ':muscle::smirk:'
+		}
+	}
+	blocks.push(funEnd)
+
 	const slackData = {
 		blocks
 	};
@@ -213,7 +223,7 @@ function createOutputFile(data) {
 	if (slackPath) {
 		axios({
 			method: 'post',
-			url: `https://hooks.slack.com/services/${slackPath}`,
+			url: slackPath,
 			data: slackData,
 			headers: {
 				'Content-type': 'application/json'
