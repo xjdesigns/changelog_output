@@ -96,8 +96,9 @@ function createReleaseDate(data) {
 }
 
 function getCommitsFromVersion(data) {
-	const versionRegex = /\[(\d.\d.\d)\]/g
-	const versions = data.match(versionRegex)
+	const versionRegex = /\[(\d+.\d+.\d+)\]/g
+	let versions = data.match(versionRegex)
+	versions = versions.filter(v => v.includes('.'))
 	// RegExp for \s\S needs additional slash as being stripped
 	version = versions[0]
 	const version0 = versions[0].replace('[', 'v').replace(']', '')
