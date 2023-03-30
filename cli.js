@@ -7,16 +7,20 @@ const optionDefinitions = [
   { name: 'writeOutput', type: Boolean, defaultValue: false },
   { name: 'fileName', type: String },
   { name: 'link', type: String },
-	{ name: 'slack', type: String }
+	{ name: 'slack', type: String },
+	{ name: 'customSlackEmoji', type: String },
+	{ name: 'debug', type: Boolean, defaultValue: false },
 ]
 const options = commandLineArgs(optionDefinitions)
 const root = process.cwd()
-const { writeOutput, inputFile, link, slack } = options
+const { writeOutput, inputFile, link, slack, customSlackEmoji, debug } = options
 let baseLink = link || ''
 let fileName = inputFile || 'CHANGELOG.md'
 let slackPath = slack || ''
+let endSlackEmoji = customSlackEmoji || ''
 const config = 'co-config.json'
 let writeOutputFile = writeOutput || false
+let debugMode = debug || false
 let version = ''
 let title = ''
 let releaseDate = ''
@@ -42,6 +46,12 @@ function checkForConfig() {
 					}
 					if (parsed.link) {
 						baseLink = parsed.link
+					}
+					if (parsed.debug) {
+						debugMode = parsed.debug
+					}
+					if (parsed.customSlackEmoji) {
+						endSlackEmoji = parsed.customSlackEmoji
 					}
 				} catch (err) {
 					rej(err)
@@ -138,7 +148,6 @@ function createLinks(issues) {
 
 	for (let o = 0; o < issues.length; o++) {
 		for (let i = 0; i < issues[o].length; i++) {
-			// const currentIssue = issues[o][i]
 			const currentIssue = changelogLinkToSlackLink(issues[o][i])
 			const issue = {
 				title: `N/A • ${currentIssue}`
@@ -166,10 +175,12 @@ function changelogLinkToSlackLink(issue) {
 	const msg = toChange.match(msgRegex)[0].replace('[', '')
 	const hash = toChange.match(hashRegex)[0].replace('[', '').replace(']', '')
 	const url = toChange.match(urlRegex)[0].replace('(', '').replace(')', '')
-	console.warn('toChange', toChange)
-	console.warn('msg', msg)
-	console.warn('hash', hash)
-	console.warn('url', url)
+	if (debugMode) {
+		console.warn('toChange', toChange)
+		console.warn('msg', msg)
+		console.warn('hash', hash)
+		console.warn('url', url)
+	}
 	return `${msg} <${url}|${hash}>`
 }
 
@@ -210,7 +221,7 @@ function createOutputFile(data) {
 		type: 'section',
 		text: {
 			type: 'mrkdwn',
-			text: ':muscle::smirk:'
+			text: endSlackEmoji || ':muscle::smirk:'
 		}
 	}
 	blocks.push(funEnd)
@@ -219,7 +230,9 @@ function createOutputFile(data) {
 		blocks
 	};
 
-	console.warn('Output data', blocks)
+	if (debugMode) {
+		console.warn('Output data', blocks)
+	}
 
 	if (slackPath) {
 		axios({
@@ -239,10 +252,12 @@ function createOutputFile(data) {
 	}
 
 	if (writeOutputFile) {
-		fs.writeFile(`${root}/outputFile.txt`, outputFile, err => {
+		fs.writeFile(`${root}/outputFile.txt`, JSON.stringify(data, null, ' '), err => {
 			if (err) console.error('failed to write')
 		})
 	}
+
+	console.warn('Changelog process completed')
 }
 
 console.warn('Starting file generation')

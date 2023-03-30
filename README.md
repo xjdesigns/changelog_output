@@ -18,12 +18,23 @@ or add as a script to run inside of npm package.json
 ```
 
 ## Options
-There are 4 options you can provide to the generate either as command line args or as a co-config.json file.
+Options you can provide to generate can be either command line args or as a co-config.json file.
 
 > NOTE: Slack webhooks are secret URLS and should not be allowed in the config file. Pass as an arg for safety.
 
 Link is built off the assumption that you are using jira. How this works is it looks for the ticket number inside of
 description of your commit and if it exists it will append that value to the end of the link property.
+
+### Option values
+| Option | Description |
+|---|---|
+| writeOutput | Writes the output to a file |
+| fileName | Name of the Changelog file to parse |
+| link | The link used when a JIRA identifier is used in the commit message |
+| debug | Outputs values inside of the terminal during parsing |
+| customSlackEmoji | Replaces the funEnd of slack with whatever emojis you pass |
+
+
 
 ### Config
 In the root directory where you run this command add a `co-config.json` file.
@@ -32,18 +43,19 @@ In the root directory where you run this command add a `co-config.json` file.
 {
 	"writeOutput": false,
 	"fileName": "CHANGELOG.md",
-	"link": "https://some/path/to/"
+	"link": "https://some/path/to/",
+	"debug": false,
+	"customSlackEmoji": ""
 }
 ```
 
 ### Command line args
 Command line args are the same values as the config but allows one more option for slack webhook integration.
 
-Slack integration already uses the following value as a base so you just need to provide the secrets portion.
-`https://hooks.slack.com/services/`
+When using the slack option you must pass the entire url to the argument.
 
 ```
-npm run generate -- --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/ending/url
+npm run generate -- --writeOutput false --fileName CHANGELOG.md --link https://some/path/to/ --slack my/secret/url
 ```
 
 ### Link

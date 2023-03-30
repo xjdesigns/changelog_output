@@ -1,5 +1,7 @@
 {
 	"writeOutput": false,
 	"fileName": "CHANGELOG_LARGE.md",
-	"link": "https://worked.atlassian.net/browse/"
+	"link": "https://worked.atlassian.net/browse/",
+	"debug": false,
+	"customSlackEmoji": ""
 }
